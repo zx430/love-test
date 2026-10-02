@@ -1,0 +1,4 @@
+import {forwardRef} from 'react';
+import {profiles} from '../data/profiles';
+import type {Result} from '../utils/scoring';
+export default forwardRef<HTMLDivElement,{result:Result;tint:string}>(function ShareCard({result:r,tint},ref){const p=profiles[r.code];return <div ref={ref} className="share-card" style={{background:`linear-gradient(145deg,#fffcf8 15%,${tint} 100%)`}}><div className="share-brand"><span>◎</span> 你是哪一种恋人？</div><div className="share-eyebrow">THE WAY WE LOVE</div><strong className="share-code">{r.code}</strong><h2>{p.name}</h2><p className="share-definition">{r.clarityLabel==='流动型'?'在不同的关系与情境里，我也可能有不同的互动方式。':p.definition}</p><div className="share-axes">{r.axes.map(a=><div key={a.letter}><span>{a.letter} · {a.label}</span><b>{Math.round(a.dominant)}<small>%</small></b></div>)}</div><div className="share-footer">人格轮廓：{r.clarityLabel} · 36 个亲密关系场景<br/><span>认识爱的方式，也给自己留一些余地。</span></div></div>});

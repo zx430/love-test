@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {questions} from '../src/data/questions';
+import {profiles} from '../src/data/profiles';
+import {score,strength,clarityName} from '../src/utils/scoring';
+test('36 道题，每个维度 9 题，16 种人格完整',()=>{assert.equal(questions.length,36);for(let i=0;i<4;i++)assert.equal(questions.filter(q=>q.dimension===i).length,9);assert.equal(Object.keys(profiles).length,16)});
+test('全部选 1、3、5：精确反向计分与固定平局',()=>{for(const [answer,code,p] of [[1,'ICPA',400/9],[3,'BEDF',50],[5,'BEDF',500/9]] as const){const r=score(Array(36).fill(answer));assert.equal(r.code,code);r.axes.forEach(a=>assert.ok(Math.abs(a.firstPercent-p)<1e-10));assert.equal(r.clarityLabel,'流动型')}});
+test('16 种人格均可正确达到两端',()=>{for(const code of Object.keys(profiles)){const answers=questions.map(q=>{const forward='BEDF'[q.dimension]===code[q.dimension];return forward===q.forward?5:1});const result=score(answers);assert.equal(result.code,code);assert.equal(result.clarity,50);result.axes.forEach(a=>assert.equal(a.dominant,100))}});
+test('平局优先比较最强回答，最终固定首字母',()=>{const answers=Array(36).fill(3);const qs=questions.filter(q=>q.dimension===0);[-2,1,1,0,0,0,0,0,0].forEach((v,i)=>answers[qs[i].id-1]=3+(qs[i].forward?v:-v));assert.equal(score(answers).axes[0].letter,'I');assert.equal(score(answers).axes[0].firstPercent,50);assert.equal(score(Array(36).fill(3)).code,'BEDF')});
+test('临界值使用原始百分比判断、显示强度按整数分箱',()=>{const answers=Array(36).fill(3);answers[0]=4;assert.equal(score(answers).axes[0].strength,'接近平衡');assert.equal(strength(56.9),'轻度倾向');assert.equal(strength(65.9),'明显倾向');assert.equal(clarityName(6),'流动型');assert.equal(clarityName(14),'混合型');assert.equal(clarityName(24),'清晰型')});
+test('拒绝缺失、越界、NaN 和非整数答案',()=>{for(const a of [[],Array(35).fill(3),Array(36).fill(0),Array(36).fill(NaN),Array(36).fill(2.5)])assert.throws(()=>score(a))});
