@@ -1,0 +1,2 @@
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'.',testMatch:['upgrade.spec.ts','browser.spec.ts'],use:{baseURL:'http://127.0.0.1:5174/love-test/',headless:true,channel:'msedge'},workers:1,reporter:'list',timeout:60000});
